@@ -1,98 +1,35 @@
+import json
+from datetime import datetime
 
-from supabase import create_client, Client
-from numrecapi import check_number_recycling
-from kyc_match import kyc_match
-# -------- CONFIG --------
+from risk_engine import evaluate_transaction
 
-SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
+if __name__ == "__main__":
+    phone = "+99999991000"
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    tx = {
+        "transaction_id": "tx_demo_001",
+        "timestamp": datetime.now().astimezone().isoformat(),
+        "amount": 9500,
+        "currency": "EUR",
+        "type": "transfer",
+        "channel": "mobile_app",
+        "beneficiary_country": "HU",
 
-# ---------- DEVICE SWAP HISTORY ----------
+        # Datos para KYC (los que tengáis en vuestro flujo real)
+        "idDocument": "66666666q",
+        "name": "Federica Sanchez Arjona",
+        "givenName": "Federica",
+        "familyName": "Sanchez Arjona",
+        "address": "Tokyo-to Chiyoda-ku Iidabashi 3-10-10",
+        "birthdate": "1978-08-22",
+        "email": "abc@example.com",
+        "country": "JP",
 
-device_swap_response = (
-    supabase
-    .table("device_swap_history")
-    .select("last_device_swap_date")
-    .order("created_at", desc=True)
-    .limit(20)
-    .execute()
-)
+        # Number recycling
+        "number_recycling_specified_date": "2024-10-31"
+    }
 
-print("\nÚltimos 20 Device Swap Dates:")
-for row in device_swap_response.data:
-    print(row["last_device_swap_date"])
+    result = evaluate_transaction(phone, tx)
 
-
-# ---------- LOCATION HISTORY ----------
-
-location_response = (
-    supabase
-    .table("location_history")
-    .select("latitude, longitude")
-    .order("created_at", desc=True)
-    .limit(20)
-    .execute()
-)
-
-print("\nÚltimas 20 Ubicaciones:")
-for row in location_response.data:
-    print(f"Lat: {row['latitude']} | Lon: {row['longitude']}")
-
-
-# ---------- SIM SWAP HISTORY ----------
-
-sim_swap_response = (
-    supabase
-    .table("sim_swap_history")
-    .select("last_sim_swap_date")
-    .order("created_at", desc=True)
-    .limit(20)
-    .execute()
-)
-
-print("\nÚltimos 20 SIM Swap Dates:")
-for row in sim_swap_response.data:
-    print(row["last_sim_swap_date"])
-
-# ----------  NUMBER RECYCLED ----------
-
-phone = "+99999991000"
-date = "2024-10-31"
-
-result = check_number_recycling(phone, date)
-
-print("\nResultado Number Recycling:")
-print(result)
-
-
-# ----------  KYC MATCH ----------
-
-user_data = {
-    "phoneNumber": "+99999991000",
-    "idDocument": "66666666q",
-    "name": "Federica Sanchez Arjona",
-    "givenName": "Federica",
-    "familyName": "Sanchez Arjona",
-    "nameKanaHankaku": "federica",
-    "nameKanaZenkaku": "Ｆｅｄｅｒｉｃａ",
-    "middleNames": "Sanchez",
-    "familyNameAtBirth": "YYYY",
-    "address": "Tokyo-to Chiyoda-ku Iidabashi 3-10-10",
-    "streetName": "Nicolas Salmeron",
-    "streetNumber": "4",
-    "postalCode": "1028460",
-    "region": "Tokyo",
-    "locality": "ZZZZ",
-    "country": "JP",
-    "houseNumberExtension": "VVVV",
-    "birthdate": "1978-08-22",
-    "email": "abc@example.com",
-    "gender": "OTHER"
-}
-
-result = kyc_match(user_data)
-
-print("\nResultado KYC Match:")
-print(result)
+    # Esto es lo que consume el frontend
+    print(json.dumps(result, indent=2, ensure_ascii=False))

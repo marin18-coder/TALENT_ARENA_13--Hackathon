@@ -10,6 +10,8 @@ HOST = "network-as-code.p-eu.rapidapi.com"
 SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
 
+phone_number = "+99999991000"
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 headers = {
@@ -18,70 +20,71 @@ headers = {
     'Content-Type': "application/json"
 }
 
-phone_number = "+99999991000"
+# ---------- 1️⃣ LLAMAR A LA API ----------
 
-# ---------- SIM SWAP CHECK ----------
+conn = http.client.HTTPSConnection(HOST)
 
-conn_sim = http.client.HTTPSConnection(HOST)
-
-payload_sim_check = json.dumps({
-    "phoneNumber": phone_number,
-    "maxAge": 2400
+payload = json.dumps({
+    "phoneNumber": phone_number
 })
 
-conn_sim.request(
+conn.request(
     "POST",
-    "/passthrough/camara/v1/sim-swap/sim-swap/v0/check",
-    payload_sim_check,
+    "/passthrough/camara/v1/sim-swap/sim-swap/v0/retrieve-date",
+    payload,
     headers
 )
 
-res_sim = conn_sim.getresponse()
-raw_sim_response = res_sim.read().decode("utf-8")
-data_sim = json.loads(raw_sim_response)
+res = conn.getresponse()
+raw_response = res.read().decode("utf-8")
 
-print("SIM SWAP CHECK:")
-print(data_sim)
+if res.status != 200:
+    print("Error API:", raw_response)
+    exit()
 
-last_sim_swap_date = None
+print("RAW RESPONSE:", raw_response)
 
-# Si swapped es true → recuperar fecha
-if data_sim.get("swapped"):
+data = json.loads(raw_response)
+api_date = data.get("lastSimSwapDate")
 
-    conn_sim_retrieve = http.client.HTTPSConnection(HOST)
+print("Fecha API:", api_date)
 
-    payload_sim_retrieve = json.dumps({
-        "phoneNumber": phone_number
-    })
+if not api_date:
+    print("No hay fecha de SIM swap.")
+    exit()
 
-    conn_sim_retrieve.request(
-        "POST",
-        "/passthrough/camara/v1/sim-swap/sim-swap/v0/retrieve-date",
-        payload_sim_retrieve,
-        headers
-    )
+# ---------- 2️⃣ OBTENER ÚLTIMA FECHA EN BD ----------
 
-    res_sim_date = conn_sim_retrieve.getresponse()
-    raw_sim_date_response = res_sim_date.read().decode("utf-8")
-    data_sim_date = json.loads(raw_sim_date_response)
+response = (
+    supabase
+    .table("sim_swap_history")
+    .select("last_sim_swap_date")
+    .eq("phone_number", phone_number)
+    .order("created_at", desc=True)
+    .limit(1)
+    .execute()
+)
 
-    print("SIM SWAP LAST DATE:")
-    print(data_sim_date)
+db_date = None
+if response.data and len(response.data) > 0:
+    db_date = response.data[0]["last_sim_swap_date"]
 
-    last_sim_swap_date = data_sim_date.get("lastSimSwapDate")
+print("Fecha BD:", db_date)
 
+# ---------- 3️⃣ COMPARAR E INSERTAR ----------
 
-# -------- INSERTAR EN SUPABASE --------
+if db_date != api_date:
+    print("Nueva fecha detectada. Insertando en BD...")
 
-insert_data = {
-    "phone_number": phone_number,
-    "swapped": data_sim.get("swapped", False),
-    "last_sim_swap_date": last_sim_swap_date,
-    "max_age_minutes": 2400,
-    "raw_response": data_sim
-}
+    insert_data = {
+        "phone_number": phone_number,
+        "swapped": True,
+        "last_sim_swap_date": api_date,
+        "max_age_minutes": None,
+        "raw_response": data
+    }
 
-response = supabase.table("sim_swap_history").insert(insert_data).execute()
-
-print("\nGUARDADO EN SUPABASE:")
-print(response)
+    supabase.table("sim_swap_history").insert(insert_data).execute()
+    print("Insertado correctamente.")
+else:
+    print("No hay cambios. No se inserta nada.")

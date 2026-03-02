@@ -1,7 +1,5 @@
 import http.client
 import json
-import time
-from datetime import datetime
 from supabase import create_client, Client
 
 # -------- CONFIG --------
@@ -12,9 +10,7 @@ HOST = "network-as-code.p-eu.rapidapi.com"
 SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
 
-CHECK_INTERVAL_SECONDS = 300  # cada 5 minutos
-
-phone_number = "+99999991000"
+phone_number = "+99999991001"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -24,82 +20,69 @@ headers = {
     'Content-Type': "application/json"
 }
 
+# ---------- 1️⃣ LLAMAR A LA API ----------
 
-def get_last_device_swap_date_from_api():
-    conn = http.client.HTTPSConnection(HOST)
+conn = http.client.HTTPSConnection(HOST)
 
-    payload = json.dumps({
-        "phoneNumber": phone_number
-    })
+payload = json.dumps({
+    "phoneNumber": phone_number
+})
 
-    conn.request(
-        "POST",
-        "/passthrough/camara/v1/device-swap/device-swap/v1/retrieve-date",
-        payload,
-        headers
-    )
+conn.request(
+    "POST",
+    "/passthrough/camara/v1/device-swap/device-swap/v1/retrieve-date",
+    payload,
+    headers
+)
 
-    res = conn.getresponse()
-    raw = res.read().decode("utf-8")
+res = conn.getresponse()
+raw_response = res.read().decode("utf-8")
 
-    if res.status != 200:
-        print("Error API:", raw)
-        return None
+if res.status != 200:
+    print("Error API:", raw_response)
+    exit()
 
-    data = json.loads(raw)
-    return data.get("lastDeviceSwapDate")
+data = json.loads(raw_response)
+api_date = data.get("lastDeviceSwapDate")
 
+print("Fecha API:", api_date)
 
-def get_last_saved_swap_from_db():
-    response = (
-        supabase
-        .table("device_swap_history")
-        .select("last_device_swap_date")
-        .eq("phone_number", phone_number)
-        .order("created_at", desc=True)
-        .limit(1)
-        .execute()
-    )
+if not api_date:
+    print("No hay fecha de swap.")
+    exit()
 
-    if response.data and len(response.data) > 0:
-        return response.data[0]["last_device_swap_date"]
+# ---------- 2️⃣ OBTENER ÚLTIMA FECHA GUARDADA EN BD ----------
 
-    return None
+response = (
+    supabase
+    .table("device_swap_history")
+    .select("last_device_swap_date")
+    .eq("phone_number", phone_number)
+    .order("created_at", desc=True)
+    .limit(1)
+    .execute()
+)
 
+db_date = None
+if response.data and len(response.data) > 0:
+    db_date = response.data[0]["last_device_swap_date"]
 
-def insert_new_swap(date_value):
+print("Fecha BD:", db_date)
+
+# ---------- 3️⃣ COMPARAR E INSERTAR SI ES DIFERENTE ----------
+
+if db_date != api_date:
+    print("Nueva fecha detectada. Insertando en BD...")
+
     insert_data = {
         "phone_number": phone_number,
         "swapped": True,
-        "last_device_swap_date": date_value,
+        "last_device_swap_date": api_date,
         "max_age_minutes": None,
-        "raw_response": {"lastDeviceSwapDate": date_value}
+        "raw_response": data
     }
 
     supabase.table("device_swap_history").insert(insert_data).execute()
-    print("Nuevo swap guardado en BD:", date_value)
-
-
-# -------- LOOP PRINCIPAL --------
-
-while True:
-    print("Comprobando device swap...")
-
-    api_date = get_last_device_swap_date_from_api()
-
-    if api_date is None:
-        time.sleep(CHECK_INTERVAL_SECONDS)
-        continue
-
-    db_date = get_last_saved_swap_from_db()
-
-    print("API date:", api_date)
-    print("DB date:", db_date)
-
-    if db_date != api_date:
-        insert_new_swap(api_date)
-    else:
-        print("No hay cambios.")
-
-    print("Esperando...\n")
-    time.sleep(CHECK_INTERVAL_SECONDS)
+    print("Insertado correctamente.")
+else:
+    print("No hay cambios. No se inserta nada.")

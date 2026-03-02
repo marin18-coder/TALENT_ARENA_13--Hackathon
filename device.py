@@ -43,7 +43,7 @@ if res.status != 200:
     exit()
 
 data = json.loads(raw_response)
-api_date = data.get("lastDeviceSwapDate")
+api_date = data.get("latestDeviceChange")
 
 print("Fecha API:", api_date)
 

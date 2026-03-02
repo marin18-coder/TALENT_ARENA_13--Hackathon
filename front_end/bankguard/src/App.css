@@ -13,7 +13,9 @@
   .app-body-left {
     max-width: 520px;
   }
-
+  .app-body-right{
+    max-width: 800px;
+  }
   .app-body-title {
     font-size: 64px;
     font-weight: 800;
@@ -26,10 +28,10 @@
     color: #0a3ac0;
   }
   
-  
   .ap-pbody-description {
     margin-top: 18px;
     font-size: 18px;
     line-height: 1.6;
     color: #64748b;
+    border-radius: 2px;
   }

@@ -1,0 +1,134 @@
+   .analysis-loading {
+    background-color: #ffffff;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+  
+    padding: 48px;
+    min-height: 500px;
+  
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+    .analysis-loading-icon-wrapper {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  
+  .analysis-loading-ring {
+    width: 96px;
+    height: 96px;
+    border-radius: 999px;
+    border: 4px solid #e0e7ff;
+    animation: pulse-ring 1.6s ease-in-out infinite;
+  }
+  
+  .analysis-loading-icon-center {
+    position: absolute;
+    inset: 0;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .analysis-loading-icon {
+    width: 40px;
+    height: 40px;
+    color: #4f46e5;
+  
+    animation: bounce-icon 1.2s infinite;
+  }
+  
+  .analysis-loading-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+  
+  .analysis-loading-description {
+    color: #64748b;
+    max-width: 260px;
+    margin: 0 auto 32px auto;
+    line-height: 1.5;
+  }
+    
+  .analysis-loading-steps {
+    width: 100%;
+    max-width: 360px;
+  
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .analysis-loading-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .analysis-loading-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    transition: all 0.4s ease;
+  }
+  
+  .analysis-loading-dot.pending {
+    background-color: #e2e8f0;
+  }
+  
+  .analysis-loading-dot.active {
+    background-color: #4f46e5;
+    animation: ping-dot 1s infinite;
+  }
+  
+  .analysis-loading-dot.done {
+    background-color: #10b981;
+  }
+  
+  .analysis-loading-text {
+    font-size: 14px;
+    transition: all 0.4s ease;
+  }
+  
+  .analysis-loading-text.pending {
+    color: #cbd5e1;
+  }
+  
+  .analysis-loading-text.active {
+    color: #0f172a;
+    font-weight: 500;
+  }
+  
+  .analysis-loading-text.done {
+    color: #94a3b8;
+    text-decoration: line-through;
+  }
+  
+  
+
+  
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  @keyframes bounce-icon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  
+  @keyframes ping-dot {
+    0% { transform: scale(1); opacity: 1; }
+    70% { transform: scale(1.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+  }

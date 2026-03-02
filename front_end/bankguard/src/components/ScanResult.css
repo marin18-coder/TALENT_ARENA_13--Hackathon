@@ -1,0 +1,315 @@
+/* =========================================================
+   SCAN RESULT (standalone component styling)
+   ========================================================= */
+
+   .scan-result {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  /* =========================
+     MAIN SCORE CARD
+     ========================= */
+  
+  .scan-result-card {
+    position: relative;
+    overflow: hidden;
+  
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 32px;
+  
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+  }
+  
+  .scan-result-id {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  
+    font-size: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-weight: 800;
+    color: #cbd5e1;
+  }
+  
+  /* Card layout */
+  .scan-result-card-row {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  
+  @media (max-width: 768px) {
+    .scan-result-card-row {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  
+  .scan-result-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  @media (max-width: 768px) {
+    .scan-result-card-content {
+      align-items: center;
+    }
+  }
+  
+  .scan-result-headline-block h2 {
+    margin: 8px 0 0 0;
+    font-size: 30px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  
+  .scan-result-quote {
+    color: #475569;
+    font-style: italic;
+    line-height: 1.6;
+    margin: 0;
+  }
+  
+  /* Meta pills */
+  .scan-result-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  @media (max-width: 768px) {
+    .scan-result-meta {
+      justify-content: center;
+    }
+  }
+  
+  .scan-result-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+  
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+  
+    padding: 6px 10px;
+  }
+  
+  .scan-result-pill-icon {
+    width: 16px;
+    height: 16px;
+    color: #94a3b8;
+  }
+  
+  /* =========================
+     FACTORS GRID
+     ========================= */
+  
+  .scan-result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  
+  @media (max-width: 900px) {
+    .scan-result-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .scan-result-factor {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .scan-result-factor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  
+  .scan-result-factor-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #94a3b8;
+  }
+  
+  .scan-result-status-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .scan-result-status-icon.safe {
+    color: #10b981;
+  }
+  
+  .scan-result-status-icon.warning {
+    color: #f59e0b;
+  }
+  
+  .scan-result-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* Progress bar */
+  .scan-result-bar {
+    width: 100%;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  
+  .scan-result-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+  
+  .scan-result-bar-fill.safe {
+    background: #10b981;
+  }
+  .scan-result-bar-fill.warning {
+    background: #f59e0b;
+  }
+  .scan-result-bar-fill.danger {
+    background: #ef4444;
+  }
+  
+  /* =========================
+     ADVANCED SECURITY CHECKS
+     ========================= */
+  
+  .scan-result-advanced {
+    background: #0b1220;
+    border-radius: 24px;
+    padding: 32px;
+    color: #ffffff;
+  }
+  
+  .scan-result-advanced-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 24px 0;
+  }
+  
+  .scan-result-advanced-title-icon {
+    width: 20px;
+    height: 20px;
+    color: rgba(129, 140, 248, 1);
+  }
+  
+  .scan-result-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .scan-result-check {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  
+    padding: 16px;
+    border-radius: 14px;
+  
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+  }
+  
+  .scan-result-check-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .scan-result-check-icon-box {
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.10);
+  }
+  
+  .scan-result-check-icon {
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+  }
+  
+  .scan-result-check-title {
+    font-weight: 800;
+    margin: 0;
+  }
+  
+  .scan-result-check-subtitle {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  
+  /* Status badge */
+  .scan-result-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+  
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  
+  .scan-result-badge.good {
+    background: rgba(16, 185, 129, 0.18);
+    color: rgba(52, 211, 153, 1);
+  }
+  
+  .scan-result-badge.warn {
+    background: rgba(245, 158, 11, 0.18);
+    color: rgba(251, 191, 36, 1);
+  }
+  
+  .scan-result-badge.bad {
+    background: rgba(239, 68, 68, 0.18);
+    color: rgba(248, 113, 113, 1);
+  }
+
+  .scan-result-mid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+  }
+  
+  @media (max-width: 900px) {
+    .scan-result-mid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .scan-result-mid-right {
+    align-self: start;
+  }

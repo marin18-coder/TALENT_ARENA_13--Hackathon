@@ -1,5 +1,5 @@
 from supabase import create_client, Client
-
+from number_recycling import check_number_recycling
 # -------- CONFIG --------
 
 SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
@@ -53,3 +53,13 @@ sim_swap_response = (
 print("\nÚltimos 20 SIM Swap Dates:")
 for row in sim_swap_response.data:
     print(row["last_sim_swap_date"])
+
+# ----------  NUMBER RECYCLED ----------
+
+phone = "+99999991000"
+date = "2024-10-31"
+
+result = check_number_recycling(phone, date)
+
+print("\nResultado Number Recycling:")
+print(result)

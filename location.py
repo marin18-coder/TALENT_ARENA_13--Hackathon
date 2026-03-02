@@ -4,11 +4,11 @@ from supabase import create_client, Client
 
 # -------- CONFIG --------
 
-RAPIDAPI_KEY = "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7"
+RAPIDAPI_KEY = "TU_RAPIDAPI_KEY"
 HOST = "network-as-code.p-eu.rapidapi.com"
 
-SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
+SUPABASE_URL = "https://TU_PROYECTO.supabase.co"
+SUPABASE_KEY = "TU_SUPABASE_SERVICE_ROLE_KEY"
 
 phone_number = "+99999991000"
 
@@ -20,7 +20,7 @@ headers = {
     'Content-Type': "application/json"
 }
 
-# ---------- 1️⃣ LLAMAR A LA API ----------
+# ---------- LLAMADA A LA API ----------
 
 conn = http.client.HTTPSConnection(HOST)
 
@@ -49,7 +49,6 @@ print("RAW RESPONSE:", raw_response)
 
 data = json.loads(raw_response)
 
-# Ajusta estos campos según lo que realmente devuelva tu API
 latitude = data.get("latitude")
 longitude = data.get("longitude")
 accuracy = data.get("accuracy")
@@ -59,45 +58,18 @@ if not latitude or not longitude:
     print("No hay ubicación disponible.")
     exit()
 
-# ---------- 2️⃣ OBTENER ÚLTIMA UBICACIÓN GUARDADA ----------
+# ---------- INSERTAR SIEMPRE ----------
 
-response = (
-    supabase
-    .table("location_history")
-    .select("latitude, longitude")
-    .eq("phone_number", phone_number)
-    .order("created_at", desc=True)
-    .limit(1)
-    .execute()
-)
+insert_data = {
+    "phone_number": phone_number,
+    "latitude": latitude,
+    "longitude": longitude,
+    "accuracy": accuracy,
+    "location_timestamp": location_timestamp,
+    "raw_response": data
+}
 
-db_lat = None
-db_lon = None
+response = supabase.table("location_history").insert(insert_data).execute()
 
-if response.data and len(response.data) > 0:
-    db_lat = response.data[0]["latitude"]
-    db_lon = response.data[0]["longitude"]
-
-print("Última BD:", db_lat, db_lon)
-print("API actual:", latitude, longitude)
-
-# ---------- 3️⃣ COMPARAR E INSERTAR SI CAMBIÓ ----------
-
-if db_lat != latitude or db_lon != longitude:
-
-    print("Nueva ubicación detectada. Insertando en BD...")
-
-    insert_data = {
-        "phone_number": phone_number,
-        "latitude": latitude,
-        "longitude": longitude,
-        "accuracy": accuracy,
-        "location_timestamp": location_timestamp,
-        "raw_response": data
-    }
-
-    supabase.table("location_history").insert(insert_data).execute()
-
-    print("Insertado correctamente.")
-else:
-    print("La ubicación no cambió. No se inserta nada.")
+print("Ubicación guardada correctamente.")
+print(response)

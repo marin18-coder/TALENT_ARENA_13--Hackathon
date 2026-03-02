@@ -1,5 +1,7 @@
 import http.client
 import json
+import time
+from datetime import datetime
 from supabase import create_client, Client
 
 # -------- CONFIG --------
@@ -10,6 +12,10 @@ HOST = "network-as-code.p-eu.rapidapi.com"
 SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
 
+CHECK_INTERVAL_SECONDS = 300  # cada 5 minutos
+
+phone_number = "+99999991000"
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 headers = {
@@ -18,70 +24,82 @@ headers = {
     'Content-Type': "application/json"
 }
 
-phone_number = "+99999991000"
 
-# ---------- DEVICE SWAP CHECK ----------
+def get_last_device_swap_date_from_api():
+    conn = http.client.HTTPSConnection(HOST)
 
-conn_device = http.client.HTTPSConnection(HOST)
-
-payload_device_check = json.dumps({
-    "phoneNumber": phone_number,
-    "maxAge": 10080 
-})
-
-conn_device.request(
-    "POST",
-    "/passthrough/camara/v1/device-swap/device-swap/v1/check",
-    payload_device_check,
-    headers
-)
-
-res_device = conn_device.getresponse()
-raw_device_response = res_device.read().decode("utf-8")
-data_device = json.loads(raw_device_response)
-
-print("DEVICE SWAP CHECK:")
-print(data_device)
-
-last_device_swap_date = None
-
-# Si swapped es true → recuperar fecha
-if data_device.get("swapped"):
-
-    conn_device_retrieve = http.client.HTTPSConnection(HOST)
-
-    payload_device_retrieve = json.dumps({
+    payload = json.dumps({
         "phoneNumber": phone_number
     })
 
-    conn_device_retrieve.request(
+    conn.request(
         "POST",
         "/passthrough/camara/v1/device-swap/device-swap/v1/retrieve-date",
-        payload_device_retrieve,
+        payload,
         headers
     )
 
-    res_device_date = conn_device_retrieve.getresponse()
-    raw_device_date_response = res_device_date.read().decode("utf-8")
-    data_device_date = json.loads(raw_device_date_response)
+    res = conn.getresponse()
+    raw = res.read().decode("utf-8")
 
-    print("DEVICE SWAP LAST DATE:")
-    print(data_device_date)
+    if res.status != 200:
+        print("Error API:", raw)
+        return None
 
-    last_device_swap_date = data_device_date.get("lastDeviceSwapDate")
+    data = json.loads(raw)
+    return data.get("lastDeviceSwapDate")
 
 
-# -------- INSERTAR EN SUPABASE --------
+def get_last_saved_swap_from_db():
+    response = (
+        supabase
+        .table("device_swap_history")
+        .select("last_device_swap_date")
+        .eq("phone_number", phone_number)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
 
-insert_data = {
-    "phone_number": phone_number,
-    "swapped": data_device.get("swapped", False),
-    "last_device_swap_date": last_device_swap_date,
-    "max_age_minutes": 10080,
-    "raw_response": data_device
-}
+    if response.data and len(response.data) > 0:
+        return response.data[0]["last_device_swap_date"]
 
-response = supabase.table("device_swap_history").insert(insert_data).execute()
+    return None
 
-print("\nGUARDADO EN SUPABASE:")
-print(response)
+
+def insert_new_swap(date_value):
+    insert_data = {
+        "phone_number": phone_number,
+        "swapped": True,
+        "last_device_swap_date": date_value,
+        "max_age_minutes": None,
+        "raw_response": {"lastDeviceSwapDate": date_value}
+    }
+
+    supabase.table("device_swap_history").insert(insert_data).execute()
+    print("Nuevo swap guardado en BD:", date_value)
+
+
+# -------- LOOP PRINCIPAL --------
+
+while True:
+    print("Comprobando device swap...")
+
+    api_date = get_last_device_swap_date_from_api()
+
+    if api_date is None:
+        time.sleep(CHECK_INTERVAL_SECONDS)
+        continue
+
+    db_date = get_last_saved_swap_from_db()
+
+    print("API date:", api_date)
+    print("DB date:", db_date)
+
+    if db_date != api_date:
+        insert_new_swap(api_date)
+    else:
+        print("No hay cambios.")
+
+    print("Esperando...\n")
+    time.sleep(CHECK_INTERVAL_SECONDS)

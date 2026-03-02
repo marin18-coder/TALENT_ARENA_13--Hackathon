@@ -1,7 +1,7 @@
 import http.client
 import json
 
-RAPIDAPI_KEY = "TU_API_KEY"
+RAPIDAPI_KEY = "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7"
 HOST = "network-as-code.p-eu.rapidapi.com"
 
 headers = {

@@ -26,7 +26,7 @@ conn_device = http.client.HTTPSConnection(HOST)
 
 payload_device_check = json.dumps({
     "phoneNumber": phone_number,
-    "maxAge": 120
+    "maxAge": 10080 
 })
 
 conn_device.request(
@@ -77,7 +77,7 @@ insert_data = {
     "phone_number": phone_number,
     "swapped": data_device.get("swapped", False),
     "last_device_swap_date": last_device_swap_date,
-    "max_age_minutes": 120,
+    "max_age_minutes": 10080,
     "raw_response": data_device
 }
 

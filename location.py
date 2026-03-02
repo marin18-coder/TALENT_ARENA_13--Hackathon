@@ -4,11 +4,11 @@ from supabase import create_client, Client
 
 # -------- CONFIG --------
 
-RAPIDAPI_KEY = "TU_RAPIDAPI_KEY"
+RAPIDAPI_KEY = "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7"
 HOST = "network-as-code.p-eu.rapidapi.com"
 
-SUPABASE_URL = "https://TU_PROYECTO.supabase.co"
-SUPABASE_KEY = "TU_SUPABASE_SERVICE_ROLE_KEY"
+SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
 
 phone_number = "+99999991000"
 

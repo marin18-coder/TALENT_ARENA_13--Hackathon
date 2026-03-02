@@ -1,5 +1,6 @@
 from supabase import create_client, Client
 from number_recycling import check_number_recycling
+from kyc_match import kyc_match
 # -------- CONFIG --------
 
 SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
@@ -62,4 +63,35 @@ date = "2024-10-31"
 result = check_number_recycling(phone, date)
 
 print("\nResultado Number Recycling:")
+print(result)
+
+
+# ----------  KYC MATCH ----------
+
+user_data = {
+    "phoneNumber": "+99999991000",
+    "idDocument": "66666666q",
+    "name": "Federica Sanchez Arjona",
+    "givenName": "Federica",
+    "familyName": "Sanchez Arjona",
+    "nameKanaHankaku": "federica",
+    "nameKanaZenkaku": "Ｆｅｄｅｒｉｃａ",
+    "middleNames": "Sanchez",
+    "familyNameAtBirth": "YYYY",
+    "address": "Tokyo-to Chiyoda-ku Iidabashi 3-10-10",
+    "streetName": "Nicolas Salmeron",
+    "streetNumber": "4",
+    "postalCode": "1028460",
+    "region": "Tokyo",
+    "locality": "ZZZZ",
+    "country": "JP",
+    "houseNumberExtension": "VVVV",
+    "birthdate": "1978-08-22",
+    "email": "abc@example.com",
+    "gender": "OTHER"
+}
+
+result = kyc_match(user_data)
+
+print("\nResultado KYC Match:")
 print(result)

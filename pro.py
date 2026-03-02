@@ -1,4 +1,5 @@
 import http.client
+import json
 
 RAPIDAPI_KEY = "TU_API_KEY"
 HOST = "network-as-code.p-eu.rapidapi.com"
@@ -11,41 +12,91 @@ headers = {
 
 phone_number = "+99999991000"
 
-# ---------- SIM SWAP ----------
+# ---------- SIM SWAP CHECK ----------
 
 conn_sim = http.client.HTTPSConnection(HOST)
 
-payload_sim = f'{{"phoneNumber":"{phone_number}","maxAge":240}}'
+payload_sim_check = json.dumps({
+    "phoneNumber": phone_number,
+    "maxAge": 240
+})
 
 conn_sim.request(
     "POST",
     "/passthrough/camara/v1/sim-swap/sim-swap/v0/check",
-    payload_sim,
+    payload_sim_check,
     headers
 )
 
 res_sim = conn_sim.getresponse()
-data_sim = res_sim.read()
+data_sim = json.loads(res_sim.read().decode("utf-8"))
 
-print("SIM SWAP RESPONSE:")
-print(data_sim.decode("utf-8"))
+print("SIM SWAP CHECK:")
+print(data_sim)
+
+# Si swapped es true → recuperar fecha
+if data_sim.get("swapped"):
+
+    conn_sim_retrieve = http.client.HTTPSConnection(HOST)
+
+    payload_sim_retrieve = json.dumps({
+        "phoneNumber": phone_number
+    })
+
+    conn_sim_retrieve.request(
+        "POST",
+        "/passthrough/camara/v1/sim-swap/sim-swap/v0/retrieve-date",
+        payload_sim_retrieve,
+        headers
+    )
+
+    res_sim_date = conn_sim_retrieve.getresponse()
+    data_sim_date = json.loads(res_sim_date.read().decode("utf-8"))
+
+    print("SIM SWAP LAST DATE:")
+    print(data_sim_date)
 
 
-# ---------- DEVICE SWAP ----------
+# ---------- DEVICE SWAP CHECK ----------
 
 conn_device = http.client.HTTPSConnection(HOST)
 
-payload_device = f'{{"phoneNumber":"{phone_number}","maxAge":120}}'
+payload_device_check = json.dumps({
+    "phoneNumber": phone_number,
+    "maxAge": 120
+})
 
 conn_device.request(
     "POST",
     "/passthrough/camara/v1/device-swap/device-swap/v1/check",
-    payload_device,
+    payload_device_check,
     headers
 )
 
 res_device = conn_device.getresponse()
-data_device = res_device.read()
+data_device = json.loads(res_device.read().decode("utf-8"))
 
-print("\nDEVICE SWAP RESPONSE:")
-print(data_device.decode("utf-8"))
+print("\nDEVICE SWAP CHECK:")
+print(data_device)
+
+# Si swapped es true → recuperar fecha
+if data_device.get("swapped"):
+
+    conn_device_retrieve = http.client.HTTPSConnection(HOST)
+
+    payload_device_retrieve = json.dumps({
+        "phoneNumber": phone_number
+    })
+
+    conn_device_retrieve.request(
+        "POST",
+        "/passthrough/camara/v1/device-swap/device-swap/v1/retrieve-date",
+        payload_device_retrieve,
+        headers
+    )
+
+    res_device_date = conn_device_retrieve.getresponse()
+    data_device_date = json.loads(res_device_date.read().decode("utf-8"))
+
+    print("DEVICE SWAP LAST DATE:")
+    print(data_device_date)

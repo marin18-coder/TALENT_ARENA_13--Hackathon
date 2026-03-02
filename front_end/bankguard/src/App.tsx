@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-
 import UpperBar from "./components/ui/UpperBar";
 import InputTelephone from "./components/InputTelephone";
 import { ScanHistoric } from "./components/ScanHistoric";
 import AnalyzeUserScore from "./components/AnalyzeScore";
-import { mockFraudResult } from "./utils/mockedFraudResults";
 import "./App.css";
 import { FraudResult } from "./types";
+import { scanFraudByPhone } from "./services/fraudApi";
 
 export default function App() {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -15,11 +14,8 @@ export default function App() {
 
   const [history, setHistory] = useState<FraudResult[]>([]);
   const [selected, setSelected] = useState<FraudResult | null>(null);
-
-  // This is the "current" result shown on the right panel
   const [result, setResult] = useState<FraudResult | null>(null);
 
-  // Loading animation stepper
   const [analysisStep, setAnalysisStep] = useState(0);
 
   const steps = useMemo(
@@ -55,13 +51,20 @@ export default function App() {
     if (error) setError(null);
   };
 
-  const handleScan = (e: React.FormEvent) => {
+  const handleScan = async (e: React.FormEvent) => {
+    console.log("🚀 handleScan triggered");
     e.preventDefault();
 
-    if (phoneNumber.replace(/[^\d+]/g, "").length < 8) {
+    const normalized = phoneNumber.trim();
+    const digitsLen = normalized.replace(/[^\d]/g, "").length;
+    console.log("📞 Phone entered:", normalized);
+    console.log("🔢 Digits length:", digitsLen);
+  
+    if (digitsLen < 8) {
       setError("Enter a valid phone number");
       return;
     }
+    console.log("✅ Validation passed");
 
     setError(null);
     setIsAnalyzing(true);
@@ -73,22 +76,20 @@ export default function App() {
       setAnalysisStep((prev) => (prev < steps.length - 1 ? prev + 1 : prev));
     }, 600);
 
-    // Fake scan result for now (replace later with real API call)
-    /**const newResult: FraudResult = {
-      id: crypto.randomUUID(),
-      phoneNumber,
-      score: Math.floor(Math.random() * 100),
-      timestamp: Date.now(),
-    } as FraudResult;**/
-    const newResult: FraudResult = mockFraudResult(phoneNumber);
-    window.setTimeout(() => {
-      window.clearInterval(stepInterval);
+    try {
+      console.log("📡 Calling backend...");
+      const newResult = await scanFraudByPhone(normalized);
+      console.log("✅ Backend responded:", newResult);
 
-      setIsAnalyzing(false);
       setSelected(newResult);
       setResult(newResult);
       setHistory((prev) => [newResult, ...prev].slice(0, 10));
-    }, 1200);
+    } catch (err: any) {
+      setError(err?.message ?? "Unexpected error");
+    } finally {
+      window.clearInterval(stepInterval);
+      setIsAnalyzing(false);
+    }
   };
 
   const clearHistory = () => {
@@ -131,6 +132,7 @@ export default function App() {
                 onSubmit={handleScan}
               />
             </div>
+
             <div className="app-body-history">
               <ScanHistoric
                 history={history}

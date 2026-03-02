@@ -32,9 +32,9 @@ export function mockFraudResult(phoneNumber: string): FraudResult {
         timestamp: Date.now(),
         riskLevel: pickRiskLevel(score),
         details:
-        "Mock analysis: cross-referencing carrier metadata, SIM swap signals and VOIP heuristics.",
+        "Mock analysis: fake output.",
         location: "Barcelona, ES",
-        carrier: "MockTel",
+        carrier: "NOKIA mobile",
         deviceSwap: Math.random() < 0.25,
         locationAnomaly: Math.random() < 0.20,
         numberRecycling: Math.random() < 0.15,

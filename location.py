@@ -49,8 +49,16 @@ print("RAW RESPONSE:", raw_response)
 
 data = json.loads(raw_response)
 
-latitude = data.get("latitude")
-longitude = data.get("longitude")
+last_location_time = data.get("lastLocationTime")
+
+area = data.get("area", {})
+center = area.get("center", {})
+
+latitude = center.get("latitude")
+longitude = center.get("longitude")
+radius = area.get("radius")
+area_type = area.get("areaType")
+
 accuracy = data.get("accuracy")
 location_timestamp = data.get("timestamp")
 

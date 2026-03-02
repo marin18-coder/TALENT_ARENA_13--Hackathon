@@ -1,0 +1,69 @@
+import http.client
+import json
+from supabase import create_client, Client
+
+# -------- CONFIG --------
+
+RAPIDAPI_KEY = "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7"
+HOST = "network-as-code.p-eu.rapidapi.com"
+
+SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
+
+phone_number = "+99999991000"
+specified_date = "2024-10-31"
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+headers = {
+    'x-rapidapi-key': RAPIDAPI_KEY,
+    'x-rapidapi-host': "network-as-code.nokia.rapidapi.com",
+    'Content-Type': "application/json"
+}
+
+# ---------- LLAMADA A LA API ----------
+
+conn = http.client.HTTPSConnection(HOST)
+
+payload = json.dumps({
+    "phoneNumber": phone_number,
+    "specifiedDate": specified_date
+})
+
+conn.request(
+    "POST",
+    "/passthrough/camara/v1/number-recycling/number-recycling/v0.2/check",
+    payload,
+    headers
+)
+
+res = conn.getresponse()
+raw_response = res.read().decode("utf-8")
+
+if res.status != 200:
+    print("Error API:", raw_response)
+    exit()
+
+print("RAW RESPONSE:", raw_response)
+
+data = json.loads(raw_response)
+
+recycled = data.get("phoneNumberRecycled")
+
+if recycled is None:
+    print("La API no devolvió resultado válido.")
+    exit()
+
+# ---------- INSERTAR EN BD ----------
+
+insert_data = {
+    "phone_number": phone_number,
+    "specified_date": specified_date,
+    "recycled": recycled,
+    "raw_response": data
+}
+
+response = supabase.table("number_recycling_history").insert(insert_data).execute()
+
+print("Resultado guardado correctamente.")
+print(response)

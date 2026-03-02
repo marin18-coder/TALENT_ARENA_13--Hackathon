@@ -1,5 +1,5 @@
 from supabase import create_client, Client
-from number_recycling import check_number_recycling
+from numrecapi import check_number_recycling
 from kyc_match import kyc_match
 # -------- CONFIG --------
 

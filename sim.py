@@ -26,7 +26,7 @@ conn_sim = http.client.HTTPSConnection(HOST)
 
 payload_sim_check = json.dumps({
     "phoneNumber": phone_number,
-    "maxAge": 10080
+    "maxAge": 2400
 })
 
 conn_sim.request(
@@ -77,7 +77,7 @@ insert_data = {
     "phone_number": phone_number,
     "swapped": data_sim.get("swapped", False),
     "last_sim_swap_date": last_sim_swap_date,
-    "max_age_minutes": 10080,
+    "max_age_minutes": 2400,
     "raw_response": data_sim
 }
 

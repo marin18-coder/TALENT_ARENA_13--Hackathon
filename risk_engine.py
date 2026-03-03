@@ -15,6 +15,7 @@ from openai import OpenAI
 
 
 
+
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError("Faltan SUPABASE_URL / SUPABASE_KEY en variables de entorno.")
 if not OPENAI_API_KEY:

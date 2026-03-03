@@ -1,12 +1,12 @@
 import http.client
 import json
 from datetime import datetime, timedelta
-
+import settings as s
 RAPIDAPI_KEY = "TU_API_KEY"
 HOST = "network-as-code.p-eu.rapidapi.com"
 
 headers = {
-    'x-rapidapi-key': "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7",
+    'x-rapidapi-key': s.x_rapid_key,
     'x-rapidapi-host': "network-as-code.nokia.rapidapi.com",
     'Content-Type': "application/json"
 }

@@ -3,7 +3,6 @@ import json
 import math
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional, Tuple
-
 from supabase import create_client, Client
 
 # Wrappers que ya tenéis

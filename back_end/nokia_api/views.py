@@ -32,13 +32,14 @@ def health(request):
 # ---------------------------------
 
 @api_view(["POST"])
-async def location_view(request):
+def location_view(request):
     serializer = PhoneSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     phone = serializer.validated_data["phoneNumber"]
+    max_age = int(request.data.get("maxAge", 60))
 
-    data = await retrieve_location(phone)
+    data = retrieve_location(phone, max_age=max_age)
 
     return Response(
         {"ok": True, "phoneNumber": phone, "data": data},
@@ -51,16 +52,33 @@ async def location_view(request):
 # ---------------------------------
 
 @api_view(["POST"])
-async def sim_swap_check_view(request):
+def sim_swap_check_view(request):
     serializer = PhoneSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     phone = serializer.validated_data["phoneNumber"]
-    max_age = request.data.get("maxAge", 240)
+    max_age = int(request.data.get("maxAge", 240))
 
-    data = await sim_swap_check(phone, max_age=int(max_age))
+    data = sim_swap_check(phone, max_age=max_age)
 
-    return Response({"ok": True, "data": data})
+    return Response(
+        {"ok": True, "phoneNumber": phone, "data": data},
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+def sim_swap_date_view(request):
+    serializer = PhoneSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    phone = serializer.validated_data["phoneNumber"]
+    data = sim_swap_retrieve_date(phone)
+
+    return Response(
+        {"ok": True, "phoneNumber": phone, "data": data},
+        status=status.HTTP_200_OK,
+    )
 
 
 # ---------------------------------
@@ -68,16 +86,33 @@ async def sim_swap_check_view(request):
 # ---------------------------------
 
 @api_view(["POST"])
-async def device_swap_check_view(request):
+def device_swap_check_view(request):
     serializer = PhoneSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     phone = serializer.validated_data["phoneNumber"]
-    max_age = request.data.get("maxAge", 120)
+    max_age = int(request.data.get("maxAge", 120))
 
-    data = await device_swap_check(phone, max_age=int(max_age))
+    data = device_swap_check(phone, max_age=max_age)
 
-    return Response({"ok": True, "data": data})
+    return Response(
+        {"ok": True, "phoneNumber": phone, "data": data},
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(["POST"])
+def device_swap_date_view(request):
+    serializer = PhoneSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    phone = serializer.validated_data["phoneNumber"]
+    data = device_swap_retrieve_date(phone)
+
+    return Response(
+        {"ok": True, "phoneNumber": phone, "data": data},
+        status=status.HTTP_200_OK,
+    )
 
 
 # ---------------------------------
@@ -85,16 +120,19 @@ async def device_swap_check_view(request):
 # ---------------------------------
 
 @api_view(["POST"])
-async def number_recycling_view(request):
+def number_recycling_view(request):
     serializer = PhoneSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     phone = serializer.validated_data["phoneNumber"]
-    years_back = request.data.get("yearsBack", 1)
+    years_back = int(request.data.get("yearsBack", 1))
 
-    data = await number_recycling_check(phone, years_back=int(years_back))
+    data = number_recycling_check(phone, years_back=years_back)
 
-    return Response({"ok": True, "data": data})
+    return Response(
+        {"ok": True, "phoneNumber": phone, "data": data},
+        status=status.HTTP_200_OK,
+    )
 
 
 # ---------------------------------
@@ -102,12 +140,12 @@ async def number_recycling_view(request):
 # ---------------------------------
 
 @api_view(["POST"])
-async def full_scan_view(request):
+def full_scan_view(request):
     serializer = PhoneSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     phone = serializer.validated_data["phoneNumber"]
-    scan = await run_full_scan(phone)
+    scan = run_full_scan(phone)
 
     return Response(
         {"ok": True, "phoneNumber": phone, "scan": scan},
@@ -120,25 +158,23 @@ async def full_scan_view(request):
 # ---------------------------------
 
 @api_view(["POST"])
-async def persist_location_view(request):
+def persist_location_view(request):
     serializer = PhoneSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
     phone = serializer.validated_data["phoneNumber"]
-
-    location = await retrieve_location(phone)
+    location = retrieve_location(phone)
 
     try:
         sb = SupabaseService()
         sb.insert_location(phone, location)
 
         return Response(
-            {"ok": True, "saved": True, "data": location},
+            {"ok": True, "phoneNumber": phone, "saved": True, "data": location},
             status=status.HTTP_200_OK,
         )
-
     except Exception as e:
         return Response(
-            {"ok": False, "error": str(e)},
+            {"ok": False, "phoneNumber": phone, "saved": False, "error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

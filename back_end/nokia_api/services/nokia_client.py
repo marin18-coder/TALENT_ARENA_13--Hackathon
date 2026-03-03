@@ -3,12 +3,10 @@ from django.conf import settings
 
 BASE = settings.RAPIDAPI_BASE
 
+
 def _headers() -> dict:
     """
-    Build the required HTTP headers for Nokia Network-as-Code APIs via RapidAPI.
-
-    Returns:
-        dict: Headers including authentication and content type.
+    Build required HTTP headers for Nokia Network-as-Code APIs via RapidAPI.
     """
     return {
         "x-rapidapi-key": settings.RAPIDAPI_KEY,
@@ -17,46 +15,54 @@ def _headers() -> dict:
     }
 
 
-async def post(path: str, payload: dict) -> dict:
+def post(path: str, payload: dict) -> dict:
     """
-    Perform an asynchronous POST request to a Nokia Network-as-Code endpoint.
+    Perform a synchronous POST request to a Nokia Network-as-Code endpoint.
 
-    This function centralizes:
+    Centralizes:
     - Base URL construction
-    - Header injection (authentication via RapidAPI)
+    - RapidAPI authentication headers
     - JSON serialization
-    - Error handling normalization
+    - Error normalization
 
     Args:
-        path (str): API endpoint path (e.g. '/passthrough/camara/v1/sim-swap/...').
-        payload (dict): JSON payload to be sent in the request body.
+        path (str): Endpoint path.
+        payload (dict): JSON body.
 
     Returns:
         dict:
-            - On success: Parsed JSON response from Nokia API.
-            - On error (HTTP >= 400): 
-                {"error": True, "status": <status_code>, "data": <parsed_json_or_raw_text>}
+            - On success → parsed JSON
+            - On error (HTTP >= 400) →
+              {"error": True, "status": <code>, "data": <json_or_raw>}
     """
 
     url = f"https://{BASE}{path}"
 
-    async with httpx.AsyncClient(timeout=20) as client:
-        response = await client.post(
-            url,
-            json=payload,
-            headers=_headers()
-        )
+    try:
+        with httpx.Client(timeout=20) as client:
+            response = client.post(
+                url,
+                json=payload,
+                headers=_headers(),
+            )
 
-        try:
-            data = response.json()
-        except Exception:
-            data = {"raw": response.text}
+            try:
+                data = response.json()
+            except Exception:
+                data = {"raw": response.text}
 
-        if response.status_code >= 400:
-            return {
-                "error": True,
-                "status": response.status_code,
-                "data": data,
-            }
+            if response.status_code >= 400:
+                return {
+                    "error": True,
+                    "status": response.status_code,
+                    "data": data,
+                }
 
-        return data
+            return data
+
+    except httpx.RequestError as e:
+        return {
+            "error": True,
+            "status": 0,
+            "data": {"message": f"Request failed: {str(e)}"},
+        }

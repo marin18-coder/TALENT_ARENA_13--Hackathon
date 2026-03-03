@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "corsheaders",
     "rest_framework",
-    'nokia_api'
+    'nokia_api',
 ]
 
 MIDDLEWARE = [
@@ -112,6 +112,9 @@ RAPIDAPI_KEY = env("RAPIDAPI_KEY")
 RAPIDAPI_HOST = env("RAPIDAPI_HOST")
 RAPIDAPI_BASE = env("RAPIDAPI_BASE")
 
+#OpenAI
+#OPENAI_API_KEY = env("OPENAI_API_KEY")
+#OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-4.1-mini")
 
 # CORS configuration (frontend localhost)
 CORS_ALLOWED_ORIGINS = [

@@ -79,28 +79,61 @@ function deriveRiskLevel(score: number): FraudResult["riskLevel"] {
   return "critical";
 }
 
-function defaultFactors(flags: {
+const clamp = (n: number, min = 0, max = 100) => Math.max(min, Math.min(max, n));
+
+function statusFromValue(v: number): FraudFactor["status"] {
+  if (v >= 80) return "danger";
+  if (v >= 55) return "warning";
+  return "safe";
+}
+
+function randomBetween(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function build3Factors(flags: {
   simSwap: boolean;
   deviceSwap: boolean;
   numberRecycling: boolean;
 }): FraudFactor[] {
+
+  // Si flag = true → alt risc random
+  // Si flag = false → baix risc random
+
+  const simSwap = flags.simSwap
+    ? randomBetween(80, 95)
+    : randomBetween(5, 20);
+
+  const deviceSwap = flags.deviceSwap
+    ? randomBetween(70, 90)
+    : randomBetween(5, 20);
+
+  const recycling = flags.numberRecycling
+    ? randomBetween(60, 85)
+    : randomBetween(5, 20);
+
   return [
-    {
-      label: "SIM Swap Risk",
-      value: flags.simSwap ? 85 : 10,
-      status: flags.simSwap ? "danger" : "safe",
-    },
-    {
-      label: "Device Swap Risk",
-      value: flags.deviceSwap ? 75 : 10,
-      status: flags.deviceSwap ? "warning" : "safe",
-    },
-    {
-      label: "Number Recycling Risk",
-      value: flags.numberRecycling ? 65 : 10,
-      status: flags.numberRecycling ? "warning" : "safe",
-    },
+    { label: "SIM Swap Risk", value: simSwap, status: statusFromValue(simSwap) },
+    { label: "Device Swap Risk", value: deviceSwap, status: statusFromValue(deviceSwap) },
+    { label: "Number Recycling Risk", value: recycling, status: statusFromValue(recycling) },
   ];
+}
+
+function scoreFrom3Factors(factors: FraudFactor[]): number {
+  const weights: Record<string, number> = {
+    "SIM Swap Risk": 0.45,
+    "Device Swap Risk": 0.30,
+    "Number Recycling Risk": 0.25,
+  };
+
+  const total = factors.reduce((acc, f) => acc + (weights[f.label] ?? 0), 0) || 1;
+
+  const weighted = factors.reduce((acc, f) => {
+    const w = weights[f.label] ?? 0;
+    return acc + f.value * w;
+  }, 0);
+
+  return clamp(Math.round(weighted / total));
 }
 
 function formatLocation(scan: NokiaFullScanResponse["scan"]): string {
@@ -133,14 +166,35 @@ export function mapNokiaScanToFraudResult(
   const deviceSwap = !!scan.deviceSwap?.swapped;
   const numberRecycling = !!scan.numberRecycling?.phoneNumberRecycled;
 
-  const score =
-    typeof scan.score === "number" ? scan.score : Math.floor(Math.random() * 100);
+  const isVoip = !!scan.isVoip;
+  const locationAnomaly = !!scan.locationAnomaly;
 
-  const riskLevel = scan.riskLevel ?? deriveRiskLevel(score);
+  
+  const kycMatch = typeof scan.kycMatch === "boolean" ? scan.kycMatch : true;
 
-  const factors = Array.isArray(scan.factors)
+  // 1) Factors: backend factors respected; else generate 3-factor model
+  const factors: FraudFactor[] = Array.isArray(scan.factors)
     ? scan.factors
-    : defaultFactors({ simSwap: simSwapHistory, deviceSwap, numberRecycling });
+    : build3Factors({
+        simSwap: simSwapHistory,
+        deviceSwap,
+        numberRecycling,
+      });
+
+
+  // 2) Score rules:
+  // - If KYC is explicitly false => force score to 10 (as requested)
+  // - Else if backend provides score => use it
+  // - Else derive score from the 3 factors
+  const score =
+    kycMatch === false
+      ? 10
+      : typeof scan.score === "number"
+      ? scan.score
+      : scoreFrom3Factors(factors);
+
+  // 3) Risk level from score (or backend riskLevel if provided)
+  const riskLevel = scan.riskLevel ?? deriveRiskLevel(score);
 
   return {
     id: scan.id ?? crypto.randomUUID(),
@@ -158,7 +212,6 @@ export function mapNokiaScanToFraudResult(
     carrier: scan.carrier ?? "Unknown",
     location: formatLocation(scan),
 
-    // Flags used by your Advanced Security Checks UI
     isVoip: !!scan.isVoip,
     simSwapHistory,
     deviceSwap,
@@ -166,7 +219,6 @@ export function mapNokiaScanToFraudResult(
     numberRecycling,
     kycMatch: typeof scan.kycMatch === "boolean" ? scan.kycMatch : true,
 
-    // Raw payloads (useful for debugging + agent pipeline later)
     scanRaw: scan,
     locationRaw: scan.location,
     simSwapRaw: scan.simSwap,

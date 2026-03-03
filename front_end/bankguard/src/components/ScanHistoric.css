@@ -1,0 +1,166 @@
+   .scan-historic {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .scan-historic-header {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .scan-historic-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+  
+  .scan-historic-title-icon {
+    width: 16px;
+    height: 16px;
+    color: #94a3b8;
+  }
+  
+  .scan-historic-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 10px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  
+  .scan-historic-clear:hover {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.08);
+  }
+  
+  .scan-historic-clear-icon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .scan-historic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .scan-historic-empty {
+    padding: 28px;
+    border: 2px dashed #e2e8f0;
+    border-radius: 16px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 12px;
+  }
+  
+  .scan-historic-item {
+    width: 100%;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+  
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  }
+  
+  .scan-historic-item:hover {
+    border-color: #cbd5e1;
+  }
+  
+  .scan-historic-item:active {
+    transform: scale(0.99);
+  }
+  
+  .scan-historic-item.is-active {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
+  }
+  
+  .scan-historic-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  
+  .scan-historic-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex: 0 0 auto;
+  }
+  
+  .scan-historic-dot.is-low {
+    background: #10b981;
+  }
+  
+  .scan-historic-dot.is-medium {
+    background: #f59e0b;
+  }
+  
+  .scan-historic-dot.is-high {
+    background: #ef4444;
+  }
+  
+  .scan-historic-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  
+  .scan-historic-phone {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    font-weight: 800;
+    font-size: 14px;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .scan-historic-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+  
+  .scan-historic-time-icon {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .scan-historic-score {
+    font-size: 12px;
+    font-weight: 800;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+  
+  .scan-historic-item:hover .scan-historic-score {
+    color: #4f46e5;
+  }

@@ -1,0 +1,50 @@
+.upperbar {
+    height: 64px;
+    background-color: white;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    padding: 0 24px;
+  }
+  
+  .upperbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .upperbar-logo {
+    width: 22px;
+    height: 22px;
+    color: white;
+    background-color: #4f46e5;
+    padding: 6px;
+    border-radius: 8px;
+  }
+  
+  .upperbar-title {
+    font-family: "Inter", sans-serif;
+
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+  }
+  
+  /* RIGHT SIDE */
+  .upperbar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #64748b;
+  }
+  
+  .upperbar-status-icon {
+    width: 16px;
+    height: 16px;
+  }

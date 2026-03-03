@@ -1,0 +1,5 @@
+{
+  "name": "BankGuard Fraud Scanner",
+  "description": "Real-time bank fraud risk assessment based on mobile number analysis and behavioral patterns.",
+  "requestFramePermissions": []
+}

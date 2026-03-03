@@ -1,7 +1,6 @@
 import http.client
 import json
-
-RAPIDAPI_KEY = "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7"
+import settings as s
 HOST = "network-as-code.p-eu.rapidapi.com"
 
 def kyc_match(data_payload):
@@ -9,7 +8,7 @@ def kyc_match(data_payload):
     conn = http.client.HTTPSConnection(HOST)
 
     headers = {
-        'x-rapidapi-key': RAPIDAPI_KEY,
+        'x-rapidapi-key': s.x_rapid_key,
         'x-rapidapi-host': "network-as-code.nokia.rapidapi.com",
         'Content-Type': "application/json; charset=utf-8",
         'x-correlator': "b4333c46-49c0-4f62-80d7-f0ef930f1c46"

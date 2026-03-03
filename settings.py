@@ -1,0 +1,4 @@
+x_rapid_key = "a189b3f9a3msha45405658bdd037p1304a2jsnba7ede3ae072"
+phoneNumber = "+36719991000"
+notification_auth_token = "c8974e592c2fa383d4a3960714"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"

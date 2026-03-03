@@ -1,21 +1,17 @@
 import http.client
 import json
 from supabase import create_client, Client
-
+import settings as s
 # -------- CONFIG --------
 
-RAPIDAPI_KEY = "6b5cf197c0mshe27c521aaca32e8p1ac9aejsndc736cfb17f7"
 HOST = "network-as-code.p-eu.rapidapi.com"
-
 SUPABASE_URL = "https://cyvyilelgipfcrwzssmv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5dnlpbGVsZ2lwZmNyd3pzc212Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ1MDA1NSwiZXhwIjoyMDg4MDI2MDU1fQ.u4vj6cDwyTHTTEAjUNDUcymCx0LK4VQ6n8zrvouNZFQ"
-
 phone_number = "+99999991000"
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase: Client = create_client(SUPABASE_URL, s.SUPABASE_KEY)
 
 headers = {
-    'x-rapidapi-key': RAPIDAPI_KEY,
+    'x-rapidapi-key': s.x_rapid_key,
     'x-rapidapi-host': "network-as-code.nokia.rapidapi.com",
     'Content-Type': "application/json"
 }

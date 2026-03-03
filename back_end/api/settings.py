@@ -20,10 +20,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
+    "rest_framework",
+    'nokia_api'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -107,3 +111,14 @@ SUPABASE_SERVICE_KEY = env("SUPABASE_SERVICE_KEY")
 RAPIDAPI_KEY = env("RAPIDAPI_KEY")
 RAPIDAPI_HOST = env("RAPIDAPI_HOST")
 RAPIDAPI_BASE = env("RAPIDAPI_BASE")
+
+
+# CORS configuration (frontend localhost)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Only for development; in production, specify allowed origins explicitly
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
